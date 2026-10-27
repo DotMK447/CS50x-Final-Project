@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4"> Watchlist</h2>
+
+<div class="card shadow p-4">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+        <tr>
+            <th>Symbol</th>
+            <th>Exchange</th>
+            <th>Price</th>
+            <th>Change</th>
+            <th>Action</th>
+        </tr>
+
+        {% for stock in stocks %}
+        <tr>
+            <td>
+                <form action="/quote" method="post" style="display:inline;">
+                    <input  name="quote" value="{{ stock.symbol }}" type="hidden">
+                    <input  name="composite" value="{{ stock.exchange }}" type="hidden">
+                    <button type="submit" class="btn btn-link p-0">
+                        {{ stock.symbol }}
+                    </button>
+                </form>
+            </td>
+            <td>{{ stock.exchange }}</td>
+            <td>{{ stock.price }}</td>
+            <td class="{{ stock.color }}">
+                {{ "{:+.2f}".format(stock.changePercentage) }}%
+            </td>
+            <td>
+                <form action="/remove_watchlist" method="post">
+                    <input type="hidden" name="symbol" value="{{ stock.symbol }}">
+                    <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

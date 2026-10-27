@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    news
+{% endblock %}
+
+{% block main %}
+{% if articles %}
+<h3>News</h3>
+    {% for article in articles %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+            <h3>{{ article.headline }}</h3>
+            <p>{{ article.summary }}</p>
+            <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                Read more
+            </a>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No news available right now.</p>
+{% endif %}
+{% endblock %}
+
+
+

@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+
+<h3>{{ stock }} <small class="text-muted">({{ composite }})</small></h3>
+
+<p>
+<form action="/add_watchlist" method="post">
+    <input type="hidden" name="symbol" value="{{ stock }}">
+    <button class="btn btn-primary btn-sm" type="submit">Add to Watchlist</button>
+</form>
+</p>
+
+<!--Chart -->
+<div class="card mb-4 shadow-sm">
+<div class="card-body">
+<div class="tradingview-widget-container">
+  <div id="tradingview_chart"></div>
+</div>
+</div>
+</div>
+</p>
+
+<!--Tabs -->
+<div class="btn-group" role="group">
+    <input type="radio" class="btn-check" name="options" id="option1" autocomplete="off" checked onclick="showTab('summary')">
+    <label class="btn btn-secondary" for="option1">Summary</label>
+
+    <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off" onclick="showTab('income')">
+    <label class="btn btn-secondary" for="option2">Income</label>
+
+    <input type="radio" class="btn-check" name="options" id="option3" autocomplete="off" onclick="showTab('balance')">
+    <label class="btn btn-secondary" for="option3">Balance</label>
+
+    <input type="radio" class="btn-check" name="options" id="option4" autocomplete="off" onclick="showTab('cashflow')">
+    <label class="btn btn-secondary" for="option4">Cash Flow</label>
+</div>
+
+<!--SUMMARY -->
+<div id="summary" class="tab">
+<p><h5>Metric in {{ keymetrics[0].reportedCurrency if keymetrics else "Data not available" }}</h5></p>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-3 shadow-sm p-3">
+        <div class="card-body">
+        <table class="table table-hover align-middle">
+        <tr>
+            <th>
+                <h5 class="card-title">Trading Info</h5>
+            </th>
+        </tr>
+        {% if quote %}
+            <tr><td>Price: {{ "{:,.2f}".format(quote[0].price) }}</td></tr>
+            <tr><td>Change: {{ "{:+.2f}".format(quote[0].changePercentage) }}%</td></tr>
+            <tr><td>Market Cap: {{ "{:,.2f}".format(quote[0].marketCap) }}</td></tr>
+        </table>
+        {% else %}
+          <p>Data not available</p>
+        {% endif %}
+        <table class="table table-hover align-middle">
+        <tr>
+            <th>
+                <h5 class="card-title">Key Metrics</h5>
+            </th>
+        </tr>
+        {% if keymetrics %}
+            <tr><td>ROA: {{ "{:.2%}".format(keymetrics[0].returnOnAssets) }}</td></tr>
+            <tr><td>ROE: {{ "{:.2%}".format(keymetrics[0].returnOnEquity) }}</td></tr>
+            <tr><td>ROIC: {{ "{:.2%}".format(keymetrics[0].returnOnInvestedCapital) }}</td></tr>
+            <tr><td>FCF: {{ "{:,.2f}".format(keymetrics[0].freeCashFlowToEquity) }}</td></tr>
+        </table>
+        {% else %}
+          <p>Data not available</p>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card mb-3 shadow-sm p-3">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <tr>
+                    <th>
+                        <h5 class="card-title">Financial Ratio</h5>
+                    </th>
+                </tr>
+                    {% if fratio %}
+                        <tr><td>GPM: {{ "{:.2%}".format(fratio[0].grossProfitMargin) }}</td></tr>
+                        <tr><td>OPM: {{ "{:.2%}".format(fratio[0].operatingProfitMargin) }}</td></tr>
+                        <tr><td>NPM: {{ "{:.2%}".format(fratio[0].netProfitMargin) }}</td></tr>
+                        <tr><td>Current Ratio: {{ "{:.2f}".format(fratio[0].currentRatio) }}</td></tr>
+                        <tr><td>DER: {{ "{:.2f}".format(fratio[0].debtToEquityRatio) }}</td></tr>
+                        <tr><td>PER: {{ "{:.2f}".format(fratio[0].priceToEarningsRatio) }}</td></tr>
+                        <tr><td>PBV: {{ "{:.2f}".format(fratio[0].priceToBookRatio) }}</td></tr>
+                    {% else %}
+                    <p>Data not available</p>
+                    {% endif %}
+            </table>
+
+        </div>
+      </div>
+    </div>
+</div>
+    <h3>News</h3>
+    {% if news %}
+    {% for article in news %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4>{{ article.headline }}</h4>
+            <p>{{ article.summary }}</p>
+            <p>
+                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    Read more
+                </a>
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+        <p>No news available</p>
+    {% endif %}
+</div>
+
+<!--INCOME -->
+<div id="income" class="tab" style="display:none;">
+    {% if income %}
+        <table class="table table-hover align-middle">
+            <!-- Header -->
+            <tr>
+                    <h5>Income Statement</h5>
+                    <h4>Metric in {{ income[0].reportedCurrency }}</h4>
+            </tr>
+            <!-- Dynamic Rows -->
+            {% for label, key in income_metrics.items() %}
+            <tr class="{% if label in ['Net Income', 'Gross Profit', 'Revenue', 'Year', 'Operating Income', 'EBIT', 'EPS'] %}fw-bold{% endif %}">
+                <td>{{ label }}</td>
+                {% for item in income %}
+                        {% if key == "fiscalYear" %}
+                            <td>{{ item[key] }}</td>
+                        {% else %}
+                            <td>{{ "{:,.2f}".format(item[key] | float) }}</td>
+                        {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Data not available</p>
+    {% endif %}
+
+</div>
+
+<!--BALANCE -->
+<div id="balance" class="tab" style="display:none;">
+    {% if balance %}
+        <table class="table table-hover align-middle">
+            <!-- Header -->
+            <tr>
+                <h5>Balance Sheet</h5>
+                <h4>Metric in {{ balance[0].reportedCurrency }}</h4>
+            </tr>
+            <!-- Dynamic Rows -->
+            {% for label, key in BS_metrics.items() %}
+            {% if key == None %}
+            <!-- Section header row -->
+            <tr class="table-secondary">
+                <td colspan="{{ balance|length + 1 }}"><strong>{{ label }}</strong></td>
+            </tr>
+            {% else %}
+            <tr class="{% if label in ['Year', 'Assets', 'Liabilities', 'Equity', 'Total Current Assets', 'Total NonCurrent Assets', 'Total Assets', 'Total Current Liabilities', 'Total NonCurrent Liabilities', 'Total Liabilities', 'Total Equity', 'Total Liabilities and Total Equity'] %}fw-bold{% endif %}">
+                <td>{{ label }}</td>
+                {% for item in balance %}
+                        {% if key == "fiscalYear" %}
+                            <td>{{ item[key] }}</td>
+                        {% else %}
+                            <td>{{ "{:,.2f}".format(item[key] | float) }}</td>
+                        {% endif %}
+                {% endfor %}
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Data not available</p>
+    {% endif %}
+</div>
+
+<!--CASHFLOW -->
+<div id="cashflow" class="tab" style="display:none;">
+    {% if cashflow %}
+        <table class="table table-hover align-middle">
+            <!-- Header -->
+            <tr>
+                <h5>Cashflow Statement</h5>
+                <h4>Metric in {{ cashflow[0].reportedCurrency }}</h4>
+            </tr>
+            <!-- Dynamic Rows -->
+            {% for label, key in CF_metrics.items() %}
+            <tr class="{% if label in ['Year', 'Cash Flow from Operating Activities', 'Cash Flow from Investing Activities', 'Cash Flow from Financing Activities', 'Net Change in Cash'] %}fw-bold{% endif %}">
+                <td>{{ label }}</td>
+                {% for item in cashflow %}
+                        {% if key == "fiscalYear" %}
+                            <td>{{ item[key] }}</td>
+                        {% else %}
+                            <td>{{ "{:,.2f}".format(item[key] | float) }}</td>
+                        {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Data not available</p>
+    {% endif %}
+</div>
+
+{% block scripts %}
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+// TradingView chart
+new TradingView.widget({
+  container_id: "tradingview_chart",
+  symbol: "{{ composite }}:{{ stock }}",
+  interval: "D",
+  theme: "dark",
+  style: "1",
+  locale: "en",
+  width: "100%",
+  height: 500
+});
+
+// Tab switcher
+function showTab(tabId) {
+    // hide all tabs
+    let tabs = document.getElementsByClassName("tab");
+
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].style.display = "none";
+    }
+
+    // show selected tab, "block" = to make things visible again, from "none"
+    document.getElementById(tabId).style.display = "block";
+}
+</script>
+
+{% endblock %}
+
+{% endblock %}
+

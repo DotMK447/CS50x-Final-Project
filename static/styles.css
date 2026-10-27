@@ -1,0 +1,71 @@
+body {
+    background-color: #f5f7fb;
+    color: #1f2937;
+    font-family: 'Inter', sans-serif;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #334155;
+    transition: 0.2s;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #f9fafb;
+}
+
+.table th {
+    font-weight: 600;
+    color: #6b7280;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f5f9;
+    transition: 0.2s;
+}
+
+.navbar-brand span {
+    position: relative;
+    top: 4px;
+}
+
+.navbar-brand img {
+    position: relative;
+    top: -4px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-groupb button {
+    border: none;
+    background: #e5e7eb;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.btn-groupb button.active {
+    background: #111827;
+    color: white;
+}
+
